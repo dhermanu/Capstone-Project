@@ -14,6 +14,8 @@ import com.yelp.clientlib.entities.Category;
 
 import java.util.List;
 
+import autovalue.shaded.org.apache.commons.lang.ArrayUtils;
+
 /**
  * Created by dhermanu on 9/4/16.
  */
@@ -70,7 +72,6 @@ public class BusinessAdapter extends RecyclerView.Adapter<BusinessAdapter.ViewHo
     @Override
     public void onBindViewHolder(BusinessAdapter.ViewHolder holder, int position) {
         final Business business = mBusiness.get(position);
-        final String image_url = "http://s3-media1.ak.yelpcdn.com/bphoto/ehZk1zXTE5xof4d2fcGLeQ/l.jpg";
         TextView businessName = holder.businessName;
         TextView businessAddress = holder.businessAddress;
         TextView businessCategory = holder.businessCategory;
@@ -90,10 +91,9 @@ public class BusinessAdapter extends RecyclerView.Adapter<BusinessAdapter.ViewHo
 
         Picasso
                 .with(mContext)
-                .load(image_url)
+                .load(convertImageURL(business.imageUrl()))
                 .fit()
                 .into(businessImage);
-
 
 //        holder.setClickListener(new ItemClickListener() {
 //            @Override
@@ -113,20 +113,35 @@ public class BusinessAdapter extends RecyclerView.Adapter<BusinessAdapter.ViewHo
 
     public String listToString(List<String> arrayList){
         StringBuilder sb = new StringBuilder();
+        int i = 0;
         for (String s : arrayList)
         {
             sb.append(s);
-            sb.append(", ");
+            if(i != arrayList.size() - 1)
+                sb.append(", ");
+            i++;
         }
         return new String(sb);
     }
 
     public String catListToString(List<Category> arrayList){
         StringBuilder sb = new StringBuilder();
+        int i = 0;
         for(Category category : arrayList){
             sb.append(category.name());
-            sb.append(" ,");
+            if(i != arrayList.size() - 1)
+               sb.append(", ");
+            i++;
         }
         return new String(sb);
+    }
+
+    public String convertImageURL(String url){
+        char[] urlArray = url.toCharArray();
+        urlArray[urlArray.length - 6] = 'l';
+        urlArray = ArrayUtils.remove(urlArray, urlArray.length-5);
+
+
+        return new String(urlArray);
     }
 }

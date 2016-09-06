@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,13 +44,10 @@ public class MainActivityFragment extends Fragment {
 
 
         updateList();
-        Log.v("TAG", "HELLOOO");
-
         return rootview;
     }
 
     public void updateList(){
-        Log.v("TAG", "HELLOOO1");
 
         final String consumerKey="";
         final String consumerSecret="";
@@ -62,11 +58,10 @@ public class MainActivityFragment extends Fragment {
         YelpAPI yelpAPI = apiFactory.createAPI();
 
         Map<String, String> params = new HashMap<>();
-        Log.v("TAG", "HELLOOO2");
 
         // general params
         params.put("term", "halal");
-        params.put("limit", "3");
+        params.put("limit", "10");
 
         // locale params
         params.put("lang", "en");
@@ -77,8 +72,6 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
                 // Update UI text with the searchResponse.
-                Log.v("TAG", "HELLOOO3");
-
 
                 SearchResponse searchResponse = response.body();
                 ArrayList<Business> businessesList =  searchResponse.businesses();
@@ -94,9 +87,6 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onFailure(Call<SearchResponse> call, Throwable t) {
                 // HTTP error happened, do something to handle it.
-                Log.v("TAG", "HELLOOO4");
-
-
             }
         };
 
