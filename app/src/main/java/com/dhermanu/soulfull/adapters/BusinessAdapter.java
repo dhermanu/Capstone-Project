@@ -1,6 +1,8 @@
-package com.dhermanu.soulfull;
+package com.dhermanu.soulfull.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.dhermanu.soulfull.R;
+import com.dhermanu.soulfull.ShadeTransformation;
+import com.dhermanu.soulfull.activities.DetailActivity;
+import com.dhermanu.soulfull.activities.MainActivity;
+import com.dhermanu.soulfull.callbacks.ItemClickListener;
 import com.squareup.picasso.Picasso;
 import com.yelp.clientlib.entities.Business;
 import com.yelp.clientlib.entities.Category;
@@ -30,7 +37,6 @@ public class BusinessAdapter extends RecyclerView.Adapter<BusinessAdapter.ViewHo
         public ViewHolder(View itemView) {
             super(itemView);
             businessName = (TextView) itemView.findViewById(R.id.businessName);
-            businessAddress = (TextView) itemView.findViewById(R.id.businessAddress);
             businessCategory = (TextView) itemView.findViewById(R.id.businessCategory);
             businessRating = (TextView) itemView.findViewById(R.id.businessRating);
             businessImage = (ImageView) itemView.findViewById(R.id.businessImage);
@@ -73,34 +79,43 @@ public class BusinessAdapter extends RecyclerView.Adapter<BusinessAdapter.ViewHo
     public void onBindViewHolder(BusinessAdapter.ViewHolder holder, int position) {
         final Business business = mBusiness.get(position);
         TextView businessName = holder.businessName;
-        TextView businessAddress = holder.businessAddress;
         TextView businessCategory = holder.businessCategory;
         TextView businessRating = holder.businessRating;
-        ImageView businessImage = holder.businessImage;
-
-        businessName.setText(business.name());
-
-        String address = listToString(business.location().displayAddress());
-        businessAddress.setText(address);
-
+        final ImageView businessImage = holder.businessImage;
+        final String address = listToString(business.location().displayAddress());
+        final String imageUrl = convertImageURL(business.imageUrl());
         String category = catListToString(business.categories());
+        String rating  = Double.toString(business.rating());
+        businessName.setText(business.name());
         businessCategory.setText(category);
 
-        String rating  = Double.toString(business.rating());
         businessRating.setText(rating);
+
 
         Picasso
                 .with(mContext)
                 .load(convertImageURL(business.imageUrl()))
                 .fit()
+                .centerCrop()
+                .transform(new ShadeTransformation((float) 0.5))
                 .into(businessImage);
 
-//        holder.setClickListener(new ItemClickListener() {
-//            @Override
-//            public void onClick(View view, int position, boolean isLongClick) {
-//                ((CallbackTablet)mContext).onItemSelected(repo);
-//            }
-//        });
+        holder.setClickListener(new ItemClickListener() {
+            @Override
+            public void onClick(View view, int position, boolean isLongClick) {
+                Intent intent = new Intent(mContext, DetailActivity.class);
+                Bundle extras = new Bundle();
+                extras.putString(MainActivity.EXTRA_NAME, business.name());
+                extras.putString(MainActivity.EXTRA_IMAGE_URL, imageUrl);
+                extras.putString(MainActivity.EXTRA_DATA, business.displayPhone());
+                extras.putString(MainActivity.EXTRA_DATA, business.phone());
+                extras.putString(MainActivity.EXTRA_DATA, address);
+                extras.putString(MainActivity.EXTRA_REVIEW, business.snippetText());
+
+                intent.putExtras(extras);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     @Override

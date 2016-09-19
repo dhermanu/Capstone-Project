@@ -16,7 +16,21 @@
     <dimen name="image_repo_width">90dp</dimen>
     <dimen name="image_banner_height">300dp</dimen>
 
+    <dimen name="image_rv_height">175dp</dimen>
+
     <dimen name="desciption_size">13sp</dimen>
     <dimen name="desciption_size_port">9sp</dimen>
 
+    <dimen name="title_image_height">200dp</dimen>
+
+    <dimen name="views_margin">4dp</dimen>
+
+    <dimen name="rating_release_text_size">16sp</dimen>
+    <dimen name="rating_release_top_margin">45dp</dimen>
+
+    <dimen name="title_text_margin_top">25dp</dimen>
+    <dimen name="title_text_margin">30dp</dimen>
+
+    <dimen name="heading_text_size">22sp</dimen>
+    <dimen name="heading_review_text_size">18sp</dimen>
 </resources>
