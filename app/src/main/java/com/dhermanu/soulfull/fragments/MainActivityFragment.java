@@ -34,6 +34,7 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -43,6 +44,7 @@ import com.yelp.clientlib.connection.YelpAPI;
 import com.yelp.clientlib.connection.YelpAPIFactory;
 import com.yelp.clientlib.entities.Business;
 import com.yelp.clientlib.entities.SearchResponse;
+import com.yelp.clientlib.entities.options.CoordinateOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,15 +63,26 @@ import static android.content.ContentValues.TAG;
  */
 public class MainActivityFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener, LocationListener{
 
     private RecyclerView rvBusiness;
     private BusinessAdapter businessAdapter;
     private ArrayList<Business> businessListSaved = null;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    private LocationRequest mLocationRequest;
+
+    private double mLongitude;
+    private double mLatitude;
     private static final int REQUEST_CODE = 1;
+
+
     TextView tittleText;
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
 
     public interface FragmentCallBack{
         public void onTextUpdated(String text);
@@ -120,6 +133,7 @@ public class MainActivityFragment extends Fragment implements
         YelpAPIFactory apiFactory = new YelpAPIFactory(consumerKey, consumerSecret, token, tokenSecret);
         YelpAPI yelpAPI = apiFactory.createAPI();
 
+
         Map<String, String> params = new HashMap<>();
 
         // general params
@@ -128,7 +142,62 @@ public class MainActivityFragment extends Fragment implements
 
         // locale params
         params.put("lang", "en");
+
+
         Call<SearchResponse> call = yelpAPI.search(location, params);
+
+
+        Callback<SearchResponse> callback = new Callback<SearchResponse>() {
+            @Override
+            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
+                // Update UI text with the searchResponse.
+
+                SearchResponse searchResponse = response.body();
+                ArrayList<Business> businessesList = searchResponse.businesses();
+                businessAdapter = new BusinessAdapter(businessesList, getContext());
+                rvBusiness.setAdapter(businessAdapter);
+
+
+                businessesList = new ArrayList<>();
+                for (Business business : businessesList) {
+                    businessListSaved.add(business);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SearchResponse> call, Throwable t) {
+                // HTTP error happened, do something to handle it.
+            }
+        };
+
+        call.enqueue(callback);
+
+    }
+
+    public void updateListLat(double latitude, double longitude){
+        final String consumerKey = "";
+        final String consumerSecret = "";
+        final String token = "";
+        final String tokenSecret = "";
+
+        YelpAPIFactory apiFactory = new YelpAPIFactory(consumerKey, consumerSecret, token, tokenSecret);
+        YelpAPI yelpAPI = apiFactory.createAPI();
+
+        Map<String, String> params = new HashMap<>();
+
+        // general params
+        params.put("term", "halal");
+        params.put("limit", "10");
+
+        // locale params
+        params.put("lang", "en");
+
+        CoordinateOptions coordinateOptions = CoordinateOptions.builder()
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+
+        Call<SearchResponse> call = yelpAPI.search(coordinateOptions, params);
 
 
         Callback<SearchResponse> callback = new Callback<SearchResponse>() {
@@ -212,6 +281,11 @@ public class MainActivityFragment extends Fragment implements
             Log.v("TEST-LATITUDE", String.valueOf(mLastLocation.getLatitude()));
             Log.v("TEST-LONGTITUDE", String.valueOf(mLastLocation.getLongitude()));
         }
+
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+
     }
 
 
