@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,13 +16,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dhermanu.soulfull.R;
-import com.dhermanu.soulfull.activities.MainActivity;
 import com.dhermanu.soulfull.activities.MapsActivity;
 import com.dhermanu.soulfull.adapters.BusinessAdapter;
 import com.google.android.gms.common.ConnectionResult;
@@ -38,11 +33,11 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.model.LatLng;
 import com.yelp.clientlib.connection.YelpAPI;
 import com.yelp.clientlib.connection.YelpAPIFactory;
 import com.yelp.clientlib.entities.Business;
+import com.yelp.clientlib.entities.Coordinate;
 import com.yelp.clientlib.entities.SearchResponse;
 import com.yelp.clientlib.entities.options.CoordinateOptions;
 
@@ -50,7 +45,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -63,7 +57,7 @@ import static android.content.ContentValues.TAG;
  */
 public class MainActivityFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener{
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private RecyclerView rvBusiness;
     private BusinessAdapter businessAdapter;
@@ -75,16 +69,9 @@ public class MainActivityFragment extends Fragment implements
     private double mLongitude;
     private double mLatitude;
     private static final int REQUEST_CODE = 1;
-
-
     TextView tittleText;
 
-    @Override
-    public void onLocationChanged(Location location) {
-
-    }
-
-    public interface FragmentCallBack{
+    public interface FragmentCallBack {
         public void onTextUpdated(String text);
     }
 
@@ -95,7 +82,6 @@ public class MainActivityFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootview = inflater.inflate(R.layout.fragment_main, container, false);
-
 
 
         rvBusiness = (RecyclerView) rootview.findViewById(R.id.recycler_business_list);
@@ -118,7 +104,16 @@ public class MainActivityFragment extends Fragment implements
     @Override
     public void onStop() {
         super.onStop();
-        if(mGoogleApiClient.isConnected()){
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            stopLocationUpdates();
             mGoogleApiClient.disconnect();
         }
     }
@@ -174,7 +169,7 @@ public class MainActivityFragment extends Fragment implements
 
     }
 
-    public void updateListLat(double latitude, double longitude){
+    public void updateList(double latitude, double longitude) {
         final String consumerKey = "";
         final String consumerSecret = "";
         final String token = "";
@@ -192,7 +187,7 @@ public class MainActivityFragment extends Fragment implements
         // locale params
         params.put("lang", "en");
 
-        CoordinateOptions coordinateOptions = CoordinateOptions.builder()
+        final CoordinateOptions coordinateOptions = CoordinateOptions.builder()
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();
@@ -214,6 +209,9 @@ public class MainActivityFragment extends Fragment implements
                 businessesList = new ArrayList<>();
                 for (Business business : businessesList) {
                     businessListSaved.add(business);
+                    Coordinate coordinate = business.location().coordinate();
+                    business.location().coordinate().longitude();
+                    business.location().coordinate().latitude();
                 }
             }
 
@@ -227,7 +225,7 @@ public class MainActivityFragment extends Fragment implements
 
     }
 
-    protected synchronized void buildGoogleApiCLient(){
+    protected synchronized void buildGoogleApiCLient() {
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -254,38 +252,19 @@ public class MainActivityFragment extends Fragment implements
             return true;
         }
 
+        if (id == R.id.myLocationIcon) {
+            if(mLastLocation != null){
+                updateList(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            }
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onConnected(Bundle bundle) {
-
-        if (ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    public void requestPermissions(@NonNull String[] permissions, int requestCode)
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-            Toast.makeText(getContext(), "FAILED", Toast.LENGTH_SHORT).show();
-            Log.v("TEST", "Connection-failed");
-            return;
-        }
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (mLastLocation != null) {
-            Toast.makeText(getContext(), String.valueOf(mLastLocation.getLatitude()), Toast.LENGTH_SHORT).show();
-            Log.v("TEST-LATITUDE", String.valueOf(mLastLocation.getLatitude()));
-            Log.v("TEST-LONGTITUDE", String.valueOf(mLastLocation.getLongitude()));
-        }
-
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-
-
+        startLocationUpdates();
     }
 
 
@@ -302,6 +281,40 @@ public class MainActivityFragment extends Fragment implements
 
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+    }
+
+    protected void startLocationUpdates(){
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(1000);
+        if (ActivityCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            Toast.makeText(getContext(), "FAILED", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                mLocationRequest, this);
+        Toast.makeText(getContext(), Double.toString(mLastLocation.getLatitude()), Toast.LENGTH_SHORT).show();
+    }
+
+    protected void stopLocationUpdates(){
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
+    }
+
     public void openAutoCompleteActivity(){
         try{
             Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
@@ -309,11 +322,14 @@ public class MainActivityFragment extends Fragment implements
             startActivityForResult(intent, REQUEST_CODE);
         }
         catch (GooglePlayServicesRepairableException e){
-            GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), e.getConnectionStatusCode(), 0).show();
+            GoogleApiAvailability
+                    .getInstance()
+                    .getErrorDialog(getActivity(), e.getConnectionStatusCode(), 0).show();
 
         }
         catch (GooglePlayServicesNotAvailableException e) {
-            String message = "Google play services is not available: " + GoogleApiAvailability.getInstance().getErrorString(e.errorCode);
+            String message = "Google play services is not available: "
+                    + GoogleApiAvailability.getInstance().getErrorString(e.errorCode);
 
             Log.e(TAG, message);
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
@@ -329,7 +345,8 @@ public class MainActivityFragment extends Fragment implements
             if (resultCode == RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(getActivity(), data);
                 Log.v("TEST", (String) place.getAddress());
-                updateList((String) place.getName());
+                LatLng latLng = place.getLatLng();
+                updateList(latLng.latitude, latLng.longitude);
                 ((FragmentCallBack)getActivity()).onTextUpdated((String) place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(getContext(), data);
