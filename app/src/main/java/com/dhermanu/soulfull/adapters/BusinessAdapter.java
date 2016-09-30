@@ -2,6 +2,7 @@ package com.dhermanu.soulfull.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.dhermanu.soulfull.R;
 import com.dhermanu.soulfull.ShadeTransformation;
+import com.dhermanu.soulfull.Utility;
 import com.dhermanu.soulfull.activities.DetailActivity;
 import com.dhermanu.soulfull.activities.MainActivity;
 import com.dhermanu.soulfull.callbacks.ItemClickListener;
@@ -55,10 +57,15 @@ public class BusinessAdapter extends RecyclerView.Adapter<BusinessAdapter.ViewHo
 
     public List<Business> mBusiness;
     public Context mContext;
+    public double mLatitude;
+    public double mLongitude;
 
-    public BusinessAdapter(List<Business> businesses, Context context){
+    public BusinessAdapter(List<Business> businesses, Context context
+            , double latitude, double longitude){
         mBusiness = businesses;
         mContext = context;
+        mLatitude = latitude;
+        mLongitude = longitude;
     }
 
     @Override
@@ -82,19 +89,22 @@ public class BusinessAdapter extends RecyclerView.Adapter<BusinessAdapter.ViewHo
         TextView businessCategory = holder.businessCategory;
         TextView businessRating = holder.businessRating;
         final ImageView businessImage = holder.businessImage;
-        final String address = listToString(business.location().displayAddress());
-        final String imageUrl = convertImageURL(business.imageUrl());
-        String category = catListToString(business.categories());
+        final String address = Utility.listToString(business.location().displayAddress());
+        final String imageUrl = Utility.convertImageURL(business.imageUrl());
+        String category = Utility.catListToString(business.categories());
+        double businessLat = business.location().coordinate().latitude();
+        double busienssLong = business.location().coordinate().longitude();
         String rating  = Double.toString(business.rating());
         businessName.setText(business.name());
         businessCategory.setText(category);
 
-        businessRating.setText(rating);
+
+        businessRating.setText(Utility.distance(mLatitude, mLongitude, businessLat, busienssLong));
 
 
         Picasso
                 .with(mContext)
-                .load(convertImageURL(business.imageUrl()))
+                .load(imageUrl)
                 .fit()
                 .centerCrop()
                 .transform(new ShadeTransformation((float) 0.5))
@@ -124,39 +134,5 @@ public class BusinessAdapter extends RecyclerView.Adapter<BusinessAdapter.ViewHo
             return mBusiness.size();
 
         return 0;
-    }
-
-    public String listToString(List<String> arrayList){
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        for (String s : arrayList)
-        {
-            sb.append(s);
-            if(i != arrayList.size() - 1)
-                sb.append(", ");
-            i++;
-        }
-        return new String(sb);
-    }
-
-    public String catListToString(List<Category> arrayList){
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        for(Category category : arrayList){
-            sb.append(category.name());
-            if(i != arrayList.size() - 1)
-               sb.append(", ");
-            i++;
-        }
-        return new String(sb);
-    }
-
-    public String convertImageURL(String url){
-        char[] urlArray = url.toCharArray();
-        urlArray[urlArray.length - 6] = 'l';
-        urlArray = ArrayUtils.remove(urlArray, urlArray.length-5);
-
-
-        return new String(urlArray);
     }
 }

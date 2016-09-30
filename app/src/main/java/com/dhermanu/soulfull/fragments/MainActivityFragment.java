@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dhermanu.soulfull.R;
+import com.dhermanu.soulfull.Utility;
 import com.dhermanu.soulfull.activities.MapsActivity;
 import com.dhermanu.soulfull.adapters.BusinessAdapter;
 import com.google.android.gms.common.ConnectionResult;
@@ -34,20 +35,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
-import com.yelp.clientlib.connection.YelpAPI;
-import com.yelp.clientlib.connection.YelpAPIFactory;
 import com.yelp.clientlib.entities.Business;
-import com.yelp.clientlib.entities.Coordinate;
-import com.yelp.clientlib.entities.SearchResponse;
-import com.yelp.clientlib.entities.options.CoordinateOptions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.ContentValues.TAG;
@@ -66,8 +57,6 @@ public class MainActivityFragment extends Fragment implements
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
 
-    private double mLongitude;
-    private double mLatitude;
     private static final int REQUEST_CODE = 1;
     TextView tittleText;
 
@@ -90,7 +79,8 @@ public class MainActivityFragment extends Fragment implements
         tittleText = (TextView) getActivity().findViewById(R.id.locationTitle);
         setHasOptionsMenu(true);
         buildGoogleApiCLient();
-        updateList("San Francisco");
+
+        Utility.updateList("San Francisco", getContext(), rvBusiness);
 
         return rootview;
     }
@@ -118,121 +108,6 @@ public class MainActivityFragment extends Fragment implements
         }
     }
 
-    public void updateList(String location) {
-
-        final String consumerKey = "";
-        final String consumerSecret = "";
-        final String token = "";
-        final String tokenSecret = "";
-
-        YelpAPIFactory apiFactory = new YelpAPIFactory(consumerKey, consumerSecret, token, tokenSecret);
-        YelpAPI yelpAPI = apiFactory.createAPI();
-
-
-        Map<String, String> params = new HashMap<>();
-
-        // general params
-        params.put("term", "halal");
-        params.put("limit", "10");
-
-        // locale params
-        params.put("lang", "en");
-
-
-        Call<SearchResponse> call = yelpAPI.search(location, params);
-
-
-        Callback<SearchResponse> callback = new Callback<SearchResponse>() {
-            @Override
-            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                // Update UI text with the searchResponse.
-
-                SearchResponse searchResponse = response.body();
-                ArrayList<Business> businessesList = searchResponse.businesses();
-                businessAdapter = new BusinessAdapter(businessesList, getContext());
-                rvBusiness.setAdapter(businessAdapter);
-
-
-                businessesList = new ArrayList<>();
-                for (Business business : businessesList) {
-                    businessListSaved.add(business);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SearchResponse> call, Throwable t) {
-                // HTTP error happened, do something to handle it.
-            }
-        };
-
-        call.enqueue(callback);
-
-    }
-
-    public void updateList(double latitude, double longitude) {
-        final String consumerKey = "";
-        final String consumerSecret = "";
-        final String token = "";
-        final String tokenSecret = "";
-
-        YelpAPIFactory apiFactory = new YelpAPIFactory(consumerKey, consumerSecret, token, tokenSecret);
-        YelpAPI yelpAPI = apiFactory.createAPI();
-
-        Map<String, String> params = new HashMap<>();
-
-        // general params
-        params.put("term", "halal");
-        params.put("limit", "10");
-
-        // locale params
-        params.put("lang", "en");
-
-        final CoordinateOptions coordinateOptions = CoordinateOptions.builder()
-                .latitude(latitude)
-                .longitude(longitude)
-                .build();
-
-        Call<SearchResponse> call = yelpAPI.search(coordinateOptions, params);
-
-
-        Callback<SearchResponse> callback = new Callback<SearchResponse>() {
-            @Override
-            public void onResponse(Call<SearchResponse> call, Response<SearchResponse> response) {
-                // Update UI text with the searchResponse.
-
-                SearchResponse searchResponse = response.body();
-                ArrayList<Business> businessesList = searchResponse.businesses();
-                businessAdapter = new BusinessAdapter(businessesList, getContext());
-                rvBusiness.setAdapter(businessAdapter);
-
-
-                businessesList = new ArrayList<>();
-                for (Business business : businessesList) {
-                    businessListSaved.add(business);
-                    Coordinate coordinate = business.location().coordinate();
-                    business.location().coordinate().longitude();
-                    business.location().coordinate().latitude();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SearchResponse> call, Throwable t) {
-                // HTTP error happened, do something to handle it.
-            }
-        };
-
-        call.enqueue(callback);
-
-    }
-
-    protected synchronized void buildGoogleApiCLient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_main, menu);
@@ -254,7 +129,8 @@ public class MainActivityFragment extends Fragment implements
 
         if (id == R.id.myLocationIcon) {
             if(mLastLocation != null){
-                updateList(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                Utility.updateList(mLastLocation.getLatitude(), mLastLocation.getLongitude(),
+                getContext(), rvBusiness);
             }
             return true;
         }
@@ -270,13 +146,13 @@ public class MainActivityFragment extends Fragment implements
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.i("TEST", "Connection suspended");
+        Log.i(TAG, "Connection suspended");
         mGoogleApiClient.connect();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.i("TEST", "Connection failed: ConnectionResult.getErrorCode() = "
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = "
                 + connectionResult.getErrorCode());
 
     }
@@ -307,7 +183,28 @@ public class MainActivityFragment extends Fragment implements
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
                 mLocationRequest, this);
-        Toast.makeText(getContext(), Double.toString(mLastLocation.getLatitude()), Toast.LENGTH_SHORT).show();
+        if(mLastLocation != null){
+            Toast.makeText(getContext(), Double.toString(mLastLocation.getLatitude()), Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(getActivity(), data);
+                Log.v(TAG, (String) place.getAddress());
+                LatLng latLng = place.getLatLng();
+                Utility.updateList(latLng.latitude, latLng.longitude, getContext(), rvBusiness);
+                ((FragmentCallBack)getActivity()).onTextUpdated((String) place.getName());
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(getContext(), data);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     protected void stopLocationUpdates(){
@@ -337,21 +234,11 @@ public class MainActivityFragment extends Fragment implements
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = PlaceAutocomplete.getPlace(getActivity(), data);
-                Log.v("TEST", (String) place.getAddress());
-                LatLng latLng = place.getLatLng();
-                updateList(latLng.latitude, latLng.longitude);
-                ((FragmentCallBack)getActivity()).onTextUpdated((String) place.getName());
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Status status = PlaceAutocomplete.getStatus(getContext(), data);
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
+    protected synchronized void buildGoogleApiCLient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 }
