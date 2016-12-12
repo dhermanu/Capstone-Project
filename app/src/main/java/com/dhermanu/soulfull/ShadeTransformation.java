@@ -10,6 +10,9 @@ import com.squareup.picasso.Transformation;
 
 public class ShadeTransformation implements Transformation {
 
+    /*reference: https://gist.github.com/r0adkll/6bbc77a58e397b50ea40
+    * courtesy of: r0adkll*/
+
     /* The shade alpha of black to apply */
     private int mAlpha;
 

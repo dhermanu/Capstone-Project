@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">SoulFull</string>
+    <string name="app_name" translatable="false">SoulFull</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_detail" translatable="false">DetailActivity</string>
     <string name="content_descriptor_fav">Add favorite restaurant</string>
 
     <string name="review_heading">Review Highlight</string>
@@ -16,4 +16,30 @@
     <string name="toprated_option_title">Top Rated</string>
     <string name="favorite_option_title">Favorite</string>
     <string name="title_activity_maps">Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="appwidget_text" translatable="false">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="string_widget_title">Bookmarked Places</string>
+
+    <string name="network_error_title">Network Error</string>
+    <string name="network_error_description">List may be outdated or empty due to network unavailability</string>
+    <string name="network_error_close">CLOSE</string>
+
+    <string name="location_error_title">Location Error</string>
+    <string name="location_error_description">Current location cannot be found due to network unavailability </string>
+    <string name="location_error_close">CLOSE</string>
+
+    <string name="default_location">San Francisco</string>
+    <string name="current_location">Current Location</string>
+    <string name="default_business">Halal Cart</string>
+    <string name="title_activity_splash_screen" translatable="false">SplashScreen</string>
+
+    <string name="title_option_map" translatable="false">maps</string>
+    <string name="title_option_location" translatable="false">myLocation</string>
+
+    <string name="bullet_symbol" translatable="false">&#160;•&#160;</string>
+
+
 </resources>

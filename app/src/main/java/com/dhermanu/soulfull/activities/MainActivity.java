@@ -1,42 +1,40 @@
 package com.dhermanu.soulfull.activities;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentContainer;
-import android.support.v4.app.FragmentTransaction;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dhermanu.soulfull.R;
+import com.dhermanu.soulfull.fragments.FavoriteActivityFragment;
 import com.dhermanu.soulfull.fragments.MainActivityFragment;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import static com.dhermanu.soulfull.R.id.viewpager;
 
 public class MainActivity extends AppCompatActivity implements MainActivityFragment.FragmentCallBack{
     public static String EXTRA_DATA = "com.extra.data";
-    public static String EXTRA_NAME = "com.extra.name";
-    public static String EXTRA_REVIEW = "com.extra.review";
-    public static String EXTRA_IMAGE_URL = "com.extra.image_url";
-    public static String EXTRA_PHONE_NUMBER = "com.extra.image_url";
+    public static String EXTRA_LAT = "com.extra.lat";
+    public static String EXTRA_LONG = "com.extra.long";
+    public static String EXTRA_MAPS = "com.extra.maps";
+    public static String EXTRA_CITY = "com.extra.city";
+    public static String EXTRA_SAVE = "com.extra.save";
+
     private static final int REQUEST_CODE = 1;
     private static final String TAG = MainActivity.class.getSimpleName();
     TextView tittleText;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private ViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,18 +47,82 @@ public class MainActivity extends AppCompatActivity implements MainActivityFragm
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         tittleText = (TextView) findViewById(R.id.locationTitle);
 
+        viewPager = (ViewPager) findViewById(viewpager);
+        setupViewPager(viewPager);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
     }
 
-
-    public void searchLocation(View view){
-        MainActivityFragment fragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_content_main);
-        fragment.openAutoCompleteActivity();
-
-    }
 
 
     @Override
-    public void onTextUpdated(String text) {
+    public void onTextUpdated(String text, boolean changeColor) {
         tittleText.setText(text);
+        if(changeColor){
+            tittleText.setTextColor(ContextCompat.getColor(getApplication(), R.color.colorAccent));
+        }
+
+        else
+            tittleText.setTextColor(ContextCompat.getColor(getApplication(), R.color.black));
+    }
+
+    public void searchLocation(View view){
+        int pos = viewPager.getCurrentItem();
+        Fragment MainActivityFragment = adapter.getItem(pos);
+        if(pos == 0)
+            ((MainActivityFragment)MainActivityFragment).openAutoCompleteActivity();
+    }
+
+    private void setupViewPager(ViewPager viewPager) {
+        final String tabTittleMain = "Search";
+        final String tabTittleBook = "Bookmark";
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new MainActivityFragment(), tabTittleMain);
+        adapter.addFragment(new FavoriteActivityFragment(), tabTittleBook);
+        viewPager.setAdapter(adapter);
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        Fragment main, favorite;
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    if(main == null)
+                        main = new MainActivityFragment();
+                    return main;
+                case 1:
+                    if(favorite == null)
+                        favorite= new FavoriteActivityFragment();
+                    return favorite;
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
     }
 }
+

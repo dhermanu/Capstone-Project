@@ -9,20 +9,20 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:id="@+id/appbar"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsingtoolbar"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            app:contentScrim="?attr/colorPrimary"
+            app:contentScrim="@android:color/transparent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="200dp"
                 android:id="@+id/imageBanner"
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax"/>
@@ -77,12 +77,112 @@
                 card_view:cardCornerRadius="0dp">
 
                 <LinearLayout
-                    android:id="@+id/layout_thumbnail_text"
+                    android:id="@+id/address"
                     android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="150dp"
-                    android:layout_marginTop="@dimen/layout_margin"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/layout_margin">
+
+                    <TextView
+                        android:layout_margin="@dimen/layout_margin"
+                        android:layout_marginLeft="@dimen/layout_margin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Overview"
+                        android:textSize="@dimen/heading_text_size"/>
+
+                    <View
+                        android:layout_marginLeft="@dimen/views_margin"
+                        android:layout_marginRight="@dimen/views_margin"
+                        android:background="@color/grey"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"/>
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_marginLeft="@dimen/layout_margin"
+                        android:layout_margin="@dimen/layout_margin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/iconLocation"
+                            android:layout_width="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_place_black_24dp"/>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/addressDisplay"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/black"/>
+
+                            <TextView
+                                android:id="@+id/distanceDisplay"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/layout_margin">
+
+
+                        <ImageView
+                            android:id="@+id/iconPhone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_call_black_24dp"/>
+
+                        <TextView
+                            android:id="@+id/phoneDisplay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/black"/>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingLeft="80dp"
+                            android:layout_marginBottom="10dp">
+
+                            <TextView
+                                android:layout_width="59dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="7dp"
+                                android:text="Ratings"/>
+
+                            <io.techery.properratingbar.ProperRatingBar
+                                android:id="@+id/ratingBar"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:prb_defaultRating="2"
+                                app:prb_totalTicks="5"
+                                app:prb_symbolicTick="★"
+                                app:prb_symbolicTickNormalColor="@color/grey"
+                                app:prb_symbolicTickSelectedColor="@color/colorAccent"/>
+
+                        </LinearLayout>
+
+
+
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/layout_margin"
+                        android:id="@+id/category"/>
 
                 </LinearLayout>
 

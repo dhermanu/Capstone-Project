@@ -6,32 +6,32 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import com.dhermanu.soulfull.data.BusinessContract.BusinessEntry;
-
 import android.support.annotation.Nullable;
+
+import com.dhermanu.soulfull.data.HalalContract.HalalEntry;
 
 /**
  * Created by dean on 9/28/16.
  */
 
-public class BusinessProvider extends ContentProvider {
+public class HalalProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
-    private BusinessDbHelper mOpenHelper;
+    private HalalDbHelper mOpenHelper;
 
-    static final int BUSINESS = 100;
+    static final int HALAL = 100;
     static UriMatcher buildUriMatcher(){
 
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        final String authority = BusinessContract.CONTENT_AUTHORITY;
+        final String authority = HalalContract.CONTENT_AUTHORITY;
 
-        matcher.addURI(authority, BusinessContract.PATH_BUSINESS, BUSINESS);
+        matcher.addURI(authority, HalalContract.PATH_HALAL, HALAL);
         return matcher;
     }
 
     @Override
     public boolean onCreate() {
-        mOpenHelper = new BusinessDbHelper(getContext());
+        mOpenHelper = new HalalDbHelper(getContext());
         return true;
     }
 
@@ -42,9 +42,9 @@ public class BusinessProvider extends ContentProvider {
         Cursor retCursor;
         switch(sUriMatcher.match(uri)){
 
-            case BUSINESS: {
+            case HALAL: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
-                        BusinessEntry.TABLE_NAME,
+                        HalalEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -69,8 +69,8 @@ public class BusinessProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
 
         switch(match){
-            case BUSINESS:
-                return BusinessEntry.CONTENT_TYPE;
+            case HALAL:
+                return HalalEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -83,12 +83,12 @@ public class BusinessProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         Uri returnUri;
         switch(match){
-            case BUSINESS:{
-                long _id = db.insert(BusinessEntry.TABLE_NAME, null, contentValues);
+            case HALAL:{
+                long _id = db.insert(HalalEntry.TABLE_NAME, null, contentValues);
                 if(_id > 0 )
-                    returnUri = BusinessEntry.buildBusinessUri(_id);
+                    returnUri = HalalEntry.buildHalalUri(_id);
                 else
-                    throw new android.database.SQLException("Faile to insert row into " + uri);
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
             default:
@@ -106,9 +106,9 @@ public class BusinessProvider extends ContentProvider {
 
         if ( null == selection ) selection = "1";
         switch(match){
-            case BUSINESS:{
+            case HALAL:{
                 rowsDeleted = db.delete(
-                        BusinessEntry.TABLE_NAME, selection, selectionArgs);
+                        HalalEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             }
             default:
@@ -129,9 +129,9 @@ public class BusinessProvider extends ContentProvider {
         int rowsUpdated;
 
         switch(match){
-            case BUSINESS:{
+            case HALAL:{
                 rowsUpdated = db.update(
-                        BusinessEntry.TABLE_NAME, contentValues, selection,
+                        HalalEntry.TABLE_NAME, contentValues, selection,
                         selectionArgs);
                 break;
             }
