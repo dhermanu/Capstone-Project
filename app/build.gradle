@@ -34,10 +34,10 @@ android {
         }
     }
     buildTypes.each {
-        it.buildConfigField 'String', 'CONSUMER_KEY', "\"\""
-        it.buildConfigField 'String', 'CONSUMER_SECRET', "\"\""
-        it.buildConfigField 'String', 'TOKEN', "\"\""
-        it.buildConfigField 'String', 'TOKEN_SECRET', "\"\""
+        it.buildConfigField 'String', 'CONSUMER_KEY', "\"HWC4iD-gGt-s1Bj0lVDaqQ\""
+        it.buildConfigField 'String', 'CONSUMER_SECRET', "\"zWZSKFRBP8rSk-AuaLVx_9JxPn8\""
+        it.buildConfigField 'String', 'TOKEN', "\"2_cOasLbPcEBx-QnTz74Gh7xYWG5eUb5\""
+        it.buildConfigField 'String', 'TOKEN_SECRET', "\"6hbItge1_pr8puNTRdN8ibVUPrU\""
     }
     dexOptions {
         javaMaxHeapSize "4g"

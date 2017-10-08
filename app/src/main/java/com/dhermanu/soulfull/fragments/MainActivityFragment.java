@@ -228,7 +228,7 @@ public class MainActivityFragment extends Fragment implements
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
                 mLocationRequest, this);
         if(mLastLocation != null){
-            Toast.makeText(getContext(), Double.toString(mLastLocation.getLatitude()), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), Double.toString(mLastLocation.getLatitude()), Toast.LENGTH_SHORT).show();
 
         }
     }

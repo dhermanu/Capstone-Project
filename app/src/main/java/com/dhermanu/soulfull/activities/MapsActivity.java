@@ -181,7 +181,6 @@ public class MapsActivity extends AppCompatActivity
         final LatLngBounds bounds = builder.build();
         final CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mMap.setInfoWindowAdapter(new MyInfoWindowAdapter());
-        mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
